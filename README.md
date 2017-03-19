@@ -1,6 +1,6 @@
 # 🔧 Toolbox
 
-My script collection.
+My collected scripts for which no extra repository is worth it.
 Mostly in Perl.
 Maybe they'll help you.
 Use at your own risk ☺️.
