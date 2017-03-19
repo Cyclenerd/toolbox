@@ -17,7 +17,7 @@ ROT_PERIOD=30
 # fetch biggest id in dir
 cd "$BACKUP_PATH" || exit
 
-BIG_ID=$( ls -1 *_dump.gz | tail -n 1 | cut -d '_' -f 1 ) &> /dev/null
+BIG_ID=$( ls -1 *_dump.gz | wc -l ) &> /dev/null
 
 if [ ! "$BIG_ID" ];
 then
