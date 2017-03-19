@@ -1,10 +1,10 @@
 # Trainingstagebuch.org Ordneraktion Skript
 
-Automatischer Import von Trainingsdateien
+Ein MacOS X Ordneraktion Skript für den automatischen Import von Trainingsdateien (HRM, TCX) zu http://trainingstagebuch.org/
 
 ## So wird's gemacht!
 
-Speichern Sie das Skript "trainingstagebuch.scpt" unter
+Speichern Sie das Skript `trainingstagebuch.scpt` unter
 
     ~/Library/Scripts/Folder Action Scripts
 
