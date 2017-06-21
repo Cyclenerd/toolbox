@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+#
+# etherscan_balance_
+#
+# Munin Plugin to monitor your Ethereum balance.
+# Account balance is queried via etherscan.io API (https://etherscan.io/apis).
+#
+# Author: Nils Knieling - https://github.com/Cyclenerd
+#
+# USAGE
+# etherscan_balance_<YOUR_PUBLIC_ETHEREUM_ADDRESS>
+#
+# EXAMPLE
+# etherscan_balance_0x3257bde8cf067ae6f1ddc0e4b140fe02e3c5e44f
+#
+# TIP 
+# Create a link:
+# ln -s /usr/share/munin/plugins/etherscan_balance_ /etc/munin/plugins/etherscan_balance_0x3257bde8cf067ae6f1ddc0e4b140fe02e3c5e44f
+#
+
+
+#####################################################################
+# Terminal output helpers
+#####################################################################
+
+# exit_with_failure() outputs a message before exiting the script.
+function exit_with_failure() {
+	echo "ERROR: $1"
+	exit 9
+}
+
+
+#####################################################################
+# Other helpers
+#####################################################################
+
+# command_exists() tells if a given command exists.
+function command_exists() {
+	command -v "$1" >/dev/null 2>&1
+}
+
+
+#####################################################################
+# Let's start
+#####################################################################
+
+if ! command_exists sed; then
+	exit_with_failure "'sed' is needed. Please install 'sed'. More details can be found at https://www.gnu.org/software/sed/"
+fi
+if ! command_exists bc; then
+	exit_with_failure "'bc' is needed. Please install 'sed'. More details can be found at https://www.gnu.org/software/bc/"
+fi
+if ! command_exists curl; then
+	exit_with_failure "'curl' is needed. Please install 'curl'. More details can be found at https://curl.haxx.se/"
+fi
+
+# Determine account address to monitor
+MY_ADDRESS=$( basename "$0" | sed 's/^etherscan_balance_//g' )
+
+if [[ ! $MY_ADDRESS =~ ^[a-z0-9\.]+$ ]]; then
+	exit_with_failure "Missing or incorrect Ethereum address! Usage: etherscan_balance_<YOUR_PUBLIC_ETHEREUM_ADDRESS> Example: etherscan_balance_0x3257bde8cf067ae6f1ddc0e4b140fe02e3c5e44f"
+fi
+
+case "$1" in
+	suggest)
+		echo "etherscan_balance_<YOUR_PUBLIC_ETHEREUM_ADDRESS>"
+		exit 0
+		;;
+	config)
+		echo "graph_title ETH $MY_ADDRESS"
+		echo "graph_info Ethereum Balance Address $MY_ADDRESS"
+		echo "graph_vlabel Ethereum Balance"
+		echo "graph_category htc"
+		echo "eth.label ETH"
+		exit 0
+		;;
+esac
+
+MY_ETH_BALANCE=$( curl -k -s -f --max-time 30 "https://api.etherscan.io/api" --data "module=account" --data "action=balance" --data "address=$MY_ADDRESS" --data "tag=latest" | sed s/\{\"status\":\"1\",\"message\":\"OK\",\"result\":\"// | sed s/\"\}// )
+
+if [[ $MY_ETH_BALANCE =~ ^[0-9]+$ ]]; then
+	MY_VALUE=$(echo "$MY_ETH_BALANCE/1000000000000000000" | bc -l)
+	printf "eth.value %.8f" "$MY_VALUE"
+fi
