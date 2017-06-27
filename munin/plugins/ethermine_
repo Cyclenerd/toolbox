@@ -59,6 +59,8 @@ if command == 'config':
     print "graph_info Ethermine Hashrate " + ETH_ADDRESS +"/" + MINER
     print "graph_vlabel Ethermine Hashrate"
     print "graph_category htc"
+    print ETH_ADDRESS + "_" + MINER + ".warning 20"
+    print ETH_ADDRESS + "_" + MINER + ".critical 10"
     print ETH_ADDRESS + "_" + MINER + ".label MH/s"
     sys.exit(0)
 
