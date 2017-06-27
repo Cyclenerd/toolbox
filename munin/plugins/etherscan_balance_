@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python
 
 #
 # etherscan_balance_
@@ -19,67 +19,68 @@
 # ln -s /usr/share/munin/plugins/etherscan_balance_ /etc/munin/plugins/etherscan_balance_0x3257bde8cf067ae6f1ddc0e4b140fe02e3c5e44f
 #
 
+import os, sys, urllib2, socket, json
 
-#####################################################################
-# Terminal output helpers
-#####################################################################
+OPTIONS = sys.argv[0].split('_')
 
-# exit_with_failure() outputs a message before exiting the script.
-function exit_with_failure() {
-	echo "ERROR: $1"
-	exit 9
-}
+command = ''
+if len(sys.argv) > 1:
+    command = sys.argv[1]
+
+if command == 'suggest':
+    print "etherscan_balance_<YOUR_PUBLIC_ETHEREUM_ADDRESS>"
+    sys.exit(0)
+
+try:
+    OPTIONS[2]
+except IndexError:
+    print "Ethereum address missing!"
+    sys.exit(9)
+
+ETH_ADDRESS = OPTIONS[2]
+
+if ETH_ADDRESS == "":
+    print "Ethereum address missing!"
+    sys.exit(9)
+
+if command == 'config':
+    print "graph_title ETH " + ETH_ADDRESS
+    print "graph_info Ethereum Address " + ETH_ADDRESS
+    print "graph_vlabel Ethereum Balance"
+    print "graph_category htc"
+    print ETH_ADDRESS + ".label ETH"
+    sys.exit(0)
 
 
-#####################################################################
-# Other helpers
-#####################################################################
+URL = 'https://api.etherscan.io/api?module=account&action=balance&tag=latest'
+STATS = URL + '&address=' + ETH_ADDRESS
 
-# command_exists() tells if a given command exists.
-function command_exists() {
-	command -v "$1" >/dev/null 2>&1
-}
+mining_req = urllib2.Request(STATS)
+mining_req.add_header('User-Agent', 'Mozilla/5.0')
 
+try:
+    mining_stats_raw = urllib2.urlopen(mining_req, None, 1.5 )
+except urllib2.HTTPError:
+    print "HTTP Error!"
+    sys.exit(9)
+except urllib2.URLError:
+    print "HTTP URL Error!"
+    sys.exit(9)
+except socket.timeout:
+    print "HTTP Timed out!"
+    sys.exit(9)
 
-#####################################################################
-# Let's start
-#####################################################################
+try:
+    mining_stats = json.load(mining_stats_raw)
+except:
+  print "JSON Error!"
+  sys.exit(9)  
 
-if ! command_exists sed; then
-	exit_with_failure "'sed' is needed. Please install 'sed'. More details can be found at https://www.gnu.org/software/sed/"
-fi
-if ! command_exists bc; then
-	exit_with_failure "'bc' is needed. Please install 'sed'. More details can be found at https://www.gnu.org/software/bc/"
-fi
-if ! command_exists curl; then
-	exit_with_failure "'curl' is needed. Please install 'curl'. More details can be found at https://curl.haxx.se/"
-fi
-
-# Determine account address to monitor
-MY_ADDRESS=$( basename "$0" | sed 's/^etherscan_balance_//g' )
-
-if [[ ! $MY_ADDRESS =~ ^[a-z0-9\.]+$ ]]; then
-	exit_with_failure "Missing or incorrect Ethereum address! Usage: etherscan_balance_<YOUR_PUBLIC_ETHEREUM_ADDRESS> Example: etherscan_balance_0x3257bde8cf067ae6f1ddc0e4b140fe02e3c5e44f"
-fi
-
-case "$1" in
-	suggest)
-		echo "etherscan_balance_<YOUR_PUBLIC_ETHEREUM_ADDRESS>"
-		exit 0
-		;;
-	config)
-		echo "graph_title ETH $MY_ADDRESS"
-		echo "graph_info Ethereum Balance Address $MY_ADDRESS"
-		echo "graph_vlabel Ethereum Balance"
-		echo "graph_category htc"
-		echo "eth.label ETH"
-		exit 0
-		;;
-esac
-
-MY_ETH_BALANCE=$( curl -k -s -f --max-time 30 "https://api.etherscan.io/api" --data "module=account" --data "action=balance" --data "address=$MY_ADDRESS" --data "tag=latest" | sed s/\{\"status\":\"1\",\"message\":\"OK\",\"result\":\"// | sed s/\"\}// )
-
-if [[ $MY_ETH_BALANCE =~ ^[0-9]+$ ]]; then
-	MY_VALUE=$(echo "$MY_ETH_BALANCE/1000000000000000000" | bc -l)
-	printf "eth.value %.8f" "$MY_VALUE"
-fi
+try:
+    float(mining_stats['result'])
+except:
+    print "Result Error!"
+    sys.exit(9)
+    
+ETH = float(mining_stats['result']) / 1000000000000000000
+print ETH_ADDRESS + ".value %.2f" % ETH
