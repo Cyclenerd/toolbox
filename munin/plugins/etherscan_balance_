@@ -1,86 +1,106 @@
 #!/usr/bin/env python
 
-#
-# etherscan_balance_
-#
-# Munin Plugin to monitor your Ethereum balance.
-# Account balance is queried via etherscan.io API (https://etherscan.io/apis).
-#
-# Author: Nils Knieling - https://github.com/Cyclenerd
-#
-# USAGE
-# etherscan_balance_<YOUR_PUBLIC_ETHEREUM_ADDRESS>
-#
-# EXAMPLE
-# etherscan_balance_0x3257bde8cf067ae6f1ddc0e4b140fe02e3c5e44f
-#
-# TIP 
-# Create a link:
-# ln -s /usr/share/munin/plugins/etherscan_balance_ /etc/munin/plugins/etherscan_balance_0x3257bde8cf067ae6f1ddc0e4b140fe02e3c5e44f
-#
+"""
+=head1 NAME
 
-import os, sys, urllib2, socket, json
+etherscan_balance_ - Munin plugin to monitor your ethereum (ETH) balance
 
-OPTIONS = sys.argv[0].split('_')
+=head1 APPLICABLE SYSTEMS
+
+All systems with "python" and "munin"
+
+=head1 CONFIGURATION
+
+etherscan_balance_<YOUR_PUBLIC_ETHEREUM_ADDRESS>
+
+=head1 SYNOPSIS
+
+  ln -s /usr/share/munin/plugins/etherscan_balance_ \
+  /etc/munin/plugins/etherscan_balance_0x3257bde8cf067ae6f1ddc0e4b140fe02e3c5e44f
+
+=head1 INTERPRETATION
+
+This plugin shows the balance (ETH) of a given ethereum address.
+Account balance is queried via etherscan.io API L<https://etherscan.io/apis>.
+
+=head1 VERSION
+
+0.0.1
+
+=head1 AUTHOR
+
+L<Nils Knieling|https://github.com/Cyclenerd>
+
+=head1 LICENSE
+
+GPLv2
+
+=head1 MAGIC MARKERS
+
+ #%# family=manual
+
+=cut
+"""
+
+from __future__ import print_function
+
+import sys
+import json
+import codecs
+
+try:
+    # python3
+    from urllib.request import urlopen
+    from urllib.request import Request
+except ImportError:
+    # python2
+    from urllib2 import urlopen
+    from urllib2 import Request
 
 command = ''
 if len(sys.argv) > 1:
     command = sys.argv[1]
 
-if command == 'suggest':
-    print "etherscan_balance_<YOUR_PUBLIC_ETHEREUM_ADDRESS>"
-    sys.exit(0)
 
-try:
-    OPTIONS[2]
-except IndexError:
-    print "Ethereum address missing!"
-    sys.exit(9)
+api_action, eth_address = sys.argv[0].split("_")[1:]
 
-ETH_ADDRESS = OPTIONS[2]
-
-if ETH_ADDRESS == "":
-    print "Ethereum address missing!"
+if not eth_address:
+    print("The filename of this plugin (or its symlink) should follow this pattern: "
+          "'etherscan_balance_<YOUR_PUBLIC_ETHEREUM_ADDRESS>'", file=sys.stderr)
     sys.exit(9)
 
 if command == 'config':
-    print "graph_title ETH " + ETH_ADDRESS
-    print "graph_info Ethereum Address " + ETH_ADDRESS
-    print "graph_vlabel Ethereum Balance"
-    print "graph_category htc"
-    print ETH_ADDRESS + ".label ETH"
+    print("graph_title ETH {}".format(eth_address))
+    print("graph_info Ethereum Account Balance for Address {}".format(eth_address))
+    print("graph_vlabel Ethereum Balance")
+    print("graph_category htc")
+    print("{}.label ETH".format(eth_address))
     sys.exit(0)
 
+ethercan_balance_api_url = 'https://api.etherscan.io/api?module=account&action=balance&tag=latest&address=' + eth_address
 
-URL = 'https://api.etherscan.io/api?module=account&action=balance&tag=latest'
-STATS = URL + '&address=' + ETH_ADDRESS
-
-mining_req = urllib2.Request(STATS)
-mining_req.add_header('User-Agent', 'Mozilla/5.0')
-
-try:
-    mining_stats_raw = urllib2.urlopen(mining_req, None, 1.5 )
-except urllib2.HTTPError:
-    print "HTTP Error!"
-    sys.exit(9)
-except urllib2.URLError:
-    print "HTTP URL Error!"
-    sys.exit(9)
-except socket.timeout:
-    print "HTTP Timed out!"
-    sys.exit(9)
+etherscan_req = Request(ethercan_balance_api_url)
+# User-Agent to bypass Cloudflare
+etherscan_req.add_header('User-Agent', 'Etherscan Munin Plugin/1.0')
 
 try:
-    mining_stats = json.load(mining_stats_raw)
+    etherscan_balance_raw = urlopen(etherscan_req, timeout=15)
+except IOError as exc:
+    print("Failed to request etherscan.io API: {}".format(exc), file=sys.stderr)
+
+reader = codecs.getreader("utf-8")
+
+try:
+    etherscan_balance = json.load(reader(etherscan_balance_raw))
+except ValueError:
+    print("Failed to parse JSON responce.", file=sys.stderr)
+    sys.exit(9)
+
+try:
+    float(etherscan_balance['result'])
 except:
-  print "JSON Error!"
-  sys.exit(9)  
-
-try:
-    float(mining_stats['result'])
-except:
-    print "Result Error!"
+    print("JSON result error!", file=sys.stderr)
     sys.exit(9)
-    
-ETH = float(mining_stats['result']) / 1000000000000000000
-print ETH_ADDRESS + ".value %.2f" % ETH
+
+eth = float(etherscan_balance['result']) / 1000000000000000000
+print("{}.value {:.2f}".format(eth_address, eth));
