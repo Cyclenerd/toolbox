@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>QR Code</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+	</head>
+	<body>
+		<p>
+			Text:
+			<input type="text" name="text" id="text" value="https://github.com/Cyclenerd" size="35" autofocus required>
+			<button type="button" onclick="convert()">▶️</button>
+		</p>
+		<p>
+			<div id="qrcode"></div>
+		</p>
+		<script>
+			function convert() {
+				document.getElementById("qrcode").innerHTML = "QR Code:<br>";
+				var text = document.getElementById("text").value;
+				$('#qrcode').qrcode(text);
+			}
+		</script>
+	</body>
+</html>
