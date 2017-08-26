@@ -4,24 +4,51 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>QR Code</title>
+		<link rel="apple-touch-icon" href="https://www.nkn-it.de/qr/icon.png">
+		<link rel="icon" type="image/png" href="https://www.nkn-it.de/qr/icon.png">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	</head>
 	<body>
-		<p>
-			Text:
-			<input type="text" name="text" id="text" value="https://github.com/Cyclenerd" size="35" autofocus required>
-			<button type="button" onclick="convert()">▶️</button>
-		</p>
-		<p>
-			<div id="qrcode"></div>
-		</p>
+		<div class="container">
+			<div class="page-header">
+				<h1><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> QR Code</h1>
+			</div>
+			<form id="convert">
+				<div class="form-group">
+					<label for="text">Text</label>
+					<input type="text" class="form-control" id="text" value="https://github.com/Cyclenerd" required>
+				</div>
+				<button type="submit" class="btn btn-primary">▶️ Convert</button>
+			</form>
+		</div>
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">QR Code</h4>
+					</div>
+					<div class="modal-body">
+						<p id="qrcode"></p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<script>
-			function convert() {
-				document.getElementById("qrcode").innerHTML = "QR Code:<br>";
+			$( "#convert" ).submit(function( event ) {
+				$('#myModal').modal('show');
+				document.getElementById("qrcode").innerHTML = "";
 				var text = document.getElementById("text").value;
 				$('#qrcode').qrcode(text);
-			}
+				event.preventDefault();
+			});
 		</script>
 	</body>
+	
 </html>
