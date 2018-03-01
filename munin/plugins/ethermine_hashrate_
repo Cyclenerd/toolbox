@@ -72,10 +72,10 @@ if command == 'config':
     print("graph_title Ethermine {}".format(miner))
     print("graph_info ethermine.org Mining Pool Hashrate for {}_{}".format(eth_address, miner))
     print("graph_vlabel Ethermine Hashrate")
-    print("graph_category htc")
-    print("{}_{}.warning 20:".format(eth_address, miner))
-    print("{}_{}.critical 10:".format(eth_address, miner))
-    print("{}_{}.label MH/s:".format(eth_address, miner))
+    print("graph_category other")
+    print("ethermine_mhs_{}_{}.warning 20:".format(eth_address, miner))
+    print("ethermine_mhs_{}_{}.critical 10:".format(eth_address, miner))
+    print("ethermine_mhs_{}_{}.label MH/s:".format(eth_address, miner))
     sys.exit(0)
 
 
@@ -89,13 +89,15 @@ try:
     mining_stats_raw = urlopen(mining_req, timeout=15)
 except IOError as exc:
     print("Failed to request ethermine.org API: {}".format(exc), file=sys.stderr)
+    sys.exit(9)
 
 reader = codecs.getreader("utf-8")
 
 try:
     mining_stats = json.load(reader(mining_stats_raw))
 except ValueError:
-    print("Failed to parse JSON responce.", file=sys.stderr)
+    # Error in decoding operation or in JSON parsing throw a ValueError
+    print("Failed to parse JSON response.", file=sys.stderr)
     sys.exit(9)
 
 try:
@@ -109,4 +111,4 @@ for worker in workers:
     if workers[worker]['worker'] == miner:
         hash_rate = workers[worker]['hashrate']
         hash_rate = hash_rate.replace(" MH/s", "")
-        print("{}_{}.value {}".format(eth_address, miner, hash_rate))
+        print("ethermine_mhs_{}_{}.value {}".format(eth_address, miner, hash_rate))
