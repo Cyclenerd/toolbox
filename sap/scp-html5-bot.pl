@@ -149,6 +149,10 @@ sub login {
 		'RelayState'         => $RelayState,
 	] ) or warn "Unable to POST SAML login: $!";
 	#print $login->content;
+	if ($login->content =~ m|<title>Missing Authorization</title>|g) {
+		print "\nLogin failed!\n";
+		exit 9;
+	}
 	
 	my $cockpit = $ua->get( $cockpit_uri )
 		or die "Unable to GET cockpit: $!";
