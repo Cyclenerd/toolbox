@@ -165,7 +165,7 @@ sub login {
 }
 
 sub activateTag {
-	print "\nACTIVATE HTML5 Version Tag ($app_version)\n";
+	print "\nACTIVATE HTML5 App ($app_name) Version Tag ($app_version)\n";
 	
 	# .../triggerHtml5AppVersionAction/<ACCOUNT>/<APP-NAME>/<GIT-VERSION-TAG>
 	my $activateTag_uri = "$ajax_uri/triggerHtml5AppVersionAction/$account_id/$app_name/$app_version";
@@ -179,6 +179,15 @@ sub activateTag {
 	);
 	my $activateTag = $ua->request( $activateTag_req ) or warn "Unable to POST triggerHtml5AppVersionAction: $!";
 	print $activateTag->content if $debug;
+	# {"message": "Application does not exist"}
+	if ($activateTag->content =~ /Application does not exist/g) {
+		print "\nApplication name does not exist!\n";
+		exit 8;
+	}
+	if ($activateTag->content =~ /Version not found/g) {
+		print "\nVersion tag not found!\n";
+		exit 8;
+	}
 	sleep(3);
 	
 	print "\nRESTART HTML5 App ($app_name)\n";
@@ -236,18 +245,22 @@ sub activateTag {
 	# }
 	#];
 	
+	print "\n";
+	my $okily_dokily = 0;
 	foreach my $version ( @{$getAllHtml5AppVersions_json} ) {
 		print $version->{version} . "\n";
 		print "\t isActive: " . $version->{isActive} . "\n";
 		print "\t isActiveVersion: " . $version->{isActiveVersion} . "\n";
 		if ($version->{version} eq $app_version) {
 			if ($version->{isActiveVersion}) {
+				$okily_dokily = 1;
 				print "\t OK!\n"
-			} else {
-				print "\nUnable to activate version tag!\n";
-				exit 8;
 			}
 		}
+	}
+	unless ($okily_dokily) {
+		print "\nUnable to activate version tag!\n";
+		exit 8;
 	}
 }
 
