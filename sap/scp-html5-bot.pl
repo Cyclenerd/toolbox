@@ -14,6 +14,7 @@ use HTTP::Cookies;
 use HTTP::Request;
 use JSON;
 use Getopt::Long;
+use Term::ReadKey;
 #use Data::Dumper;
 
 # Get command line options
@@ -22,7 +23,7 @@ GetOptions (
 	"account|a=s" => \$account_id,      # SAP Cloud subaccount name (ID) [string]
 	"user|u=s" => \$user,               # Username or email [string]
 	"password|pass|p=s" => \$password,  # Password [string]
-	"app=s" => \$app_name,              # HTML5 app name [string]
+	"application|b=s" => \$app_name,    # HTML5 app name [string]
 	"version|tag|v=s" => \$app_version, # HTML5 app version tag [string]
 	"trial|t" => \$trial,               # Neo or Trail? [flag]
 	"debug|d" => \$debug,               # Debug? [flag]
@@ -55,7 +56,15 @@ $ua->cookie_jar($cookie_jar);
 
 # Print usage and exit
 sub usage {
-	print "usage: $0 -a SUBACCOUNT NAME -u USERNAME -p PASSWORD -app APP NAME -v APP VERSION [-trial] [-debug]\n";
+	print "usage: $0 -a SUBACCOUNT NAME -u USERNAME -p PASSWORD -b APP NAME -v APP VERSION [-t] [-d]\n\n";
+	print "\t -a, --account          : Subaccount name\n";
+	print "\t -u, --user             : Use your email, SAP ID or user name\n";
+	print "\t -p, --pass, --password : To protect your password, enter it only when prompted by the console client and not explicitly as a parameter\n";
+	print "\t -b, --application      : The name of the HTML5 application\n";
+	print "\t -v, --version, --tag   : The version tag of the HTML5 application\n";
+	print "\t -t, --trial            : Use trial account [Europe (Rot) - Trial]\n";
+	print "\t -d, --debug            : Output for debugging\n";
+	print "\n";
 	exit 1;
 }
 
@@ -347,10 +356,6 @@ unless ($user) {
 	print "Username or email missing!\n";
 	&usage();
 }
-unless ($password) {
-	print "Password missing!\n";
-	&usage();
-}
 unless ($app_name) {
 	print "HTML5 app name missing!\n";
 	&usage();
@@ -358,6 +363,14 @@ unless ($app_name) {
 unless ($app_version) {
 	print "HTML5 app version missing!\n";
 	&usage();
+}
+if ($user && !$password) {
+	print "Password: ";
+	ReadMode 'noecho';
+	$password = <STDIN>; 
+	ReadMode 'original';
+	chomp($password);
+	print "\n";	
 }
 
 &delCookies(); # Clear cookies
