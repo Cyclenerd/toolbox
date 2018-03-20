@@ -236,7 +236,7 @@ sub activateTag {
 		print $version->{version} . "\n";
 		print "\t isActive: " . $version->{isActive} . "\n";
 		print "\t isActiveVersion: " . $version->{isActiveVersion} . "\n";
-		if ($version->{version} eq '1.0.1') {
+		if ($version->{version} eq $app_version) {
 			if ($version->{isActiveVersion}) {
 				print "\t OK!\n"
 			} else {
