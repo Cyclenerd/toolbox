@@ -244,7 +244,8 @@ sub activateTag {
 			if ($version->{isActiveVersion}) {
 				print "\t OK!\n"
 			} else {
-				die "Unable to activate Version!"
+				print "\nUnable to activate version tag!\n";
+				exit 8;
 			}
 		}
 	}
