@@ -1,11 +1,34 @@
 #!/usr/bin/perl
 
+# scp-html5-bot.pl
+# Author: Nils Knieling
+#    https://github.com/Cyclenerd/toolbox/blob/master/sap/scp-html5-bot.pl
 #
-# The missing CLI for SAP Cloud Platform HTML5 Applications
+###################################################################################################
 #
-# With this 🤖script you can activate a version of an HTML5 App.
-# Quickly hacked and poorly tested!
+# The missing CLI for SAP Cloud Platform HTML5 Applications.
+# With this Perl script you can upload and activate a version of an HTML5 App.
 #
+###################################################################################################
+#
+# Examples:
+#    Activate only:       perl scp-html5-bot.pl -a abc123 -u S0001 -b demo -v one
+#    Upload and activate: perl scp-html5-bot.pl -a abc123 -u S0001 -b demo -v two -i MyApp.zip
+#
+###################################################################################################
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+###################################################################################################
 
 use strict;
 use utf8;
