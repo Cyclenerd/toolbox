@@ -11,20 +11,21 @@ use strict;
 use utf8;
 use LWP::UserAgent;
 use HTTP::Cookies;
-use HTTP::Request;
+use HTTP::Request::Common;
 use JSON;
 use Getopt::Long;
 use Term::ReadKey;
 #use Data::Dumper;
 
 # Get command line options
-my ($account_id, $user, $password, $app_name, $app_version, $trial, $debug, $help);
+my ($account_id, $user, $password, $app_name, $app_version, $file, $trial, $debug, $help);
 GetOptions (
 	"account|a=s" => \$account_id,      # SAP Cloud subaccount name (ID) [string]
 	"user|u=s" => \$user,               # Username or email [string]
 	"password|pass|p=s" => \$password,  # Password [string]
 	"application|b=s" => \$app_name,    # HTML5 app name [string]
 	"version|tag|v=s" => \$app_version, # HTML5 app version tag [string]
+	"import|zip|i=s" => \$file,         # Import HTML5 app version from ZIP file [string]
 	"trial|t" => \$trial,               # Neo or Trail? [flag]
 	"debug|d" => \$debug,               # Debug? [flag]
 	"help|?|h" => \&usage)              # Help? [flag]
@@ -56,12 +57,13 @@ $ua->cookie_jar($cookie_jar);
 
 # Print usage and exit
 sub usage {
-	print "usage: $0 -a SUBACCOUNT NAME -u USERNAME -p PASSWORD -b APP NAME -v APP VERSION [-t] [-d]\n\n";
+	print "usage: $0 -a SUBACCOUNT NAME -u USERNAME -p PASSWORD -b APP NAME -v APP VERSION [-i IMPORT-HTML5-FILE.ZIP] [-t] [-d]\n\n";
 	print "\t -a, --account          : Subaccount name\n";
 	print "\t -u, --user             : Use your email, SAP ID or user name\n";
 	print "\t -p, --pass, --password : To protect your password, enter it only when prompted by the console client and not explicitly as a parameter\n";
 	print "\t -b, --application      : The name of the HTML5 application\n";
 	print "\t -v, --version, --tag   : The version tag of the HTML5 application\n";
+	print "\t -i, --import, --zip    : Import HTML5 app version from ZIP file\n";
 	print "\t -t, --trial            : Use trial account [Europe (Rot) - Trial]\n";
 	print "\t -d, --debug            : Output for debugging\n";
 	print "\n";
@@ -163,6 +165,34 @@ sub login {
 		print "csrftoken: $csrftoken\n" if $debug;
 	}
 }
+
+
+sub importHtml5Application {
+	print "\nIMPORT ($file) HTML5 App ($app_name) Version Tag ($app_version)\n";
+	
+	# .../importHtml5Application/<ACCOUNT>/<APP-NAME>/<GIT-VERSION-TAG>
+	my $importApp_uri = "$ajax_uri/importHtml5Application/$account_id/$app_name/$app_version".'?X-ClientSession-Id='."$csrftoken";
+	my $importApp_req  = HTTP::Request::Common::POST( 
+		$importApp_uri,
+		# Content-Disposition: form-data; name="Html5FileImporter"; filename="scp_neo_html5_static.zip"
+		'Content_Type' => 'multipart/form-data',
+		'Content' => [ 
+			'Html5FileImporter' => [$file, 'upload.zip']
+		]
+	);
+	my $importApp = $ua->request( $importApp_req ) or warn "Unable to POST importHtml5Application: $!";
+	print $importApp->content if $debug;
+	if ($importApp->content =~ /Created/g) {
+		print "\nImport successful!\n";
+	} elsif ($importApp->content =~ /exists/g) { # <html><head></head><body>[409]:Version already exists</body></html>
+		print "\nVersion already exists!\n";
+		exit 8;
+	} else {
+		print "\nImport with errors!\n";
+		exit 8;
+	}
+}
+
 
 sub activateTag {
 	print "\nACTIVATE HTML5 App ($app_name) Version Tag ($app_version)\n";
@@ -382,6 +412,16 @@ unless ($app_version) {
 	print "HTML5 app version missing!\n";
 	&usage();
 }
+if ($file) {
+	unless (-f $file) {
+		print "\"$file\" not found or is not a plain file!\n";
+		exit 2;
+	}
+	unless ($file =~ /\.zip$/i ) {
+		print "\"$file\" must be a ZIP file!\n";
+		exit 2;
+	}
+}
 if ($user && !$password) {
 	print "Password: ";
 	ReadMode 'noecho';
@@ -393,5 +433,6 @@ if ($user && !$password) {
 
 &delCookies(); # Clear cookies
 &login(); # Try to login
+&importHtml5Application() if ($file); # Import HTML5 app from ZIP file
 &activateTag(); # Try to activate version tag
 &delCookies(); # For safety
