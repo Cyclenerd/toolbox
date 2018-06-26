@@ -9,7 +9,7 @@
 
 use strict;
 use utf8;
-use LWP::UserAgent;
+use LWP::UserAgent; # install also LWP::Protocol::https
 use HTTP::Cookies;
 use HTTP::Request::Common;
 use JSON;
