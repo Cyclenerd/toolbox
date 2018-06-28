@@ -16,6 +16,8 @@
 #    Upload and activate: perl scp-html5-bot.pl -a abc123 -u S0001 -b demo -v two -i MyApp.zip
 #
 ###################################################################################################
+# Copyright (c) 2018, Nils Knieling. All rights reserved.
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -67,7 +69,7 @@ my $ajax_uri = $root_uri . '/ajax';
 my $cookies = "cookies.txt";
 
 # Create web browser
-my $ua = LWP::UserAgent->new( ssl_opts => { verify_hostname => 0, 'SSL_verify_mode' => 'SSL_VERIFY_NONE' } );
+my $ua = LWP::UserAgent->new( ssl_opts => { verify_hostname => 1 } );
 $ua->agent('SAPCloudBot/1.0');
 # Store cookies
 my $cookie_jar = HTTP::Cookies->new( file => $cookies, tosave => 1, ignore_discard => 1 );
