@@ -207,7 +207,7 @@ sub importHtml5Application {
 	);
 	my $importApp = $ua->request( $importApp_req ) or warn "Unable to POST importHtml5Application: $!";
 	print $importApp->content if $debug;
-	if ($importApp->content =~ /Created/g) {
+	if ($importApp->content =~ /Created/g || $importApp->content =~ /201/g) { # 2018/10/09: <html><head></head><body>[201]:</body></html>
 		print "\nImport successful!\n";
 	} elsif ($importApp->content =~ /exists/g) { # <html><head></head><body>[409]:Version already exists</body></html>
 		print "\nVersion already exists!\n";
