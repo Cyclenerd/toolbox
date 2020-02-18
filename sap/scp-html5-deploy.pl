@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 
-# scp-html5-bot.pl
+# scp-html5-deploy.pl
 # Author: Nils Knieling
-#    https://github.com/Cyclenerd/toolbox/blob/master/sap/scp-html5-bot.pl
+#    https://github.com/Cyclenerd/toolbox/blob/master/sap/scp-html5-deploy.pl
 #
 ###################################################################################################
 #
@@ -12,8 +12,8 @@
 ###################################################################################################
 #
 # Examples:
-#    Activate only:       perl scp-html5-bot.pl -a abc123 -u S0001 -b demo -v one
-#    Upload and activate: perl scp-html5-bot.pl -a abc123 -u S0001 -b demo -v two -i MyApp.zip
+#    Activate only:       perl scp-html5-deploy.pl -a abc123 -u S0001 -b demo -v one
+#    Upload and activate: perl scp-html5-deploy.pl -a abc123 -u S0001 -b demo -v two -i MyApp.zip
 #
 ###################################################################################################
 # Copyright (c) 2018, Nils Knieling. All rights reserved.
