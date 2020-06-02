@@ -5,15 +5,16 @@
 # If successful, delete the other folder (A or B)
 
 ME=$(basename "$0")
+MY_DIR="/mnt/usb_wd_4tb_crypt/backup"
 
 function usage {
     returnCode="$1"
     echo
     echo -e "Usage: 
     $ME -d <DIR> -n <NUMBER>] [-h]
-    -d <DIR>\\t Backup dir
-    -n <NUMBER>\\t Folder number
-    [-h]\\t\\t displays help (this message)"
+    -d <DIR>    Backup directory (Default: '$MY_DIR')
+    -n <NUMBER> Folder number
+    [-h]        Displays help (this message)"
     echo
     exit "$returnCode"
 }
@@ -37,19 +38,19 @@ done
 
 command -v xtrabackup >/dev/null 2>&1 || { echo >&2 "!!! Error !!! xtrabackup it's not installed."; exit 1; }
 
-if [ -d "$MY_DIR" ]; then
-    MY_DIR=${MY_DIR%/}
-    echo "Backup dir: $MY_DIR"
-else
-    echo "Backup dir missing or directory '$MY_DIR' DOES NOT exists."
-    exit 2
-fi
-
 if ((MY_NUMBER >= 1)); then
     echo "Folder number: $MY_NUMBER"
 else
     echo "Folder number for backup missing"
     exit 3
+fi
+
+if [ -d "$MY_DIR" ]; then
+    MY_DIR=${MY_DIR%/}
+    echo "Backup dir: $MY_DIR"
+else
+    echo "Backup dir missing or directory '$MY_DIR' does not exists."
+    exit 2
 fi
 
 MY_BACKUP_DIR_A="$MY_DIR""/""$MY_NUMBER""A"
