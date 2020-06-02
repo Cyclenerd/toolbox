@@ -28,9 +28,9 @@ function usage {
     echo
     echo -e "Usage: 
     $ME -n <NUMBER>] [-h]
-    -t <TEMP DIR>\\t Dir for temporary files (Default: '$MY_TMP_DIR')
-    -n <NUMBER>\\t Folder number for backup in S3 Bucket
-    [-h]\\t\\t displays help (this message)"
+    -t <TEMP DIR> Dir for temporary files (Default: '$MY_TMP_DIR')
+    -n <NUMBER>   Folder number for backup in S3 Bucket
+    [-h]          Displays help (this message)"
     echo
     exit "$returnCode"
 }
