@@ -41,10 +41,10 @@ if ($xmlrpc_identify->{'StatusCode'} == 200) {
 	my $args = { RemoteUri => 'sip:'.$App::options{tel}.'@sipgate.net', TOS => 'text', Content => $App::options{msg} };
 	my $xmlrpc_result = $xmlrpc_client->call( "samurai.SessionInitiate", $args );
 	if ($xmlrpc_result->{'StatusCode'} == 200) {
-		print "✓ OK: SMS sent successfully.\n";
+		print "OK: SMS sent successfully.\n";
 	} else {
-		warn "× ERROR: SMS to ".$App::options{tel}." could not be sent!\n";
+		warn "ERROR: SMS to ".$App::options{tel}." could not be sent!\n";
 	}
 } else {
-	warn "× ERROR: Logon to sipgate was denied!\n";
+	warn "ERROR: Logon to sipgate was denied!\n";
 }
