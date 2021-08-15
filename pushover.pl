@@ -39,5 +39,5 @@ my $response = LWP::UserAgent->new()->post(
 if ($response->is_success) {
 	print "OK: Message sent successfully.\n";
 } else {
-	warn "ERROR: Message could not be sent!\n";
+	warn "ERROR: Message could not be sent! Status: '". $response->status_line ."'\n";
 }
