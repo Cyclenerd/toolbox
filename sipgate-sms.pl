@@ -7,7 +7,10 @@
 #
 # sudo apt install libwww-perl libapp-options-perl libjson-xs-perl
 #
-# Get token id and token with sessions:sms:write scope:
+# 1.) Order the free feature "SMS senden"
+#    https://app.sipgatebasic.de/feature-store/sms-senden
+#
+# 2.) Get token id and token with 'sessions:sms:write' scope
 #    https://app.sipgate.com/personal-access-token
 #
 # perl sipgate-sms.pl \
