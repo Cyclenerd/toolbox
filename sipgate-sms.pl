@@ -1,50 +1,72 @@
 #!/usr/bin/perl
 
 #
-# Nils Knieling: 2021/08/15, sipgate-sms.pl
+# Nils Knieling: 2021/09/01, sipgate-sms.pl
 #
-# Send an SMS via the sipgate RPC2 API
+# Send an SMS via the sipgate REST API
 #
-# Note: To send SMS, you need the "Send SMS" (German: "SMS-Senden") feature from the Feature Store.
+# sudo apt install libwww-perl libapp-options-perl libjson-xs-perl
 #
-# sudo apt install libfrontier-rpc-perl libapp-options-perl
+# Get token id and token with sessions:sms:write scope:
+#    https://app.sipgate.com/personal-access-token
 #
-# perl sipgate-sms.pl --user=USERNAME --pass=PASSWORD --tel=RECIPIENT --msg="MESSAGE"
+# perl sipgate-sms.pl \
+#    --id=YOUR_SIPGATE_TOKEN_ID \
+#    --token=YOUR_SIPGATE_TOKEN \
+#    --sms=YOUR_SIPGATE_SMS_EXTENSION_DEFAULT_S0 \
+#    --tel=RECIPIENT_PHONE_NUMBER \
+#    --msg="YOUR_MESSAGE"
 #
 # You can also create a sipgate-sms.conf configuration file in the same directory as the sipgate-sms.pl program with default values:
 #
-# user = USERNAME
-# pass = PASSWORD
-# tel = RECIPIENT
-# msg = MESSAGE
+# id = YOUR_SIPGATE_TOKEN_ID
+# token = YOUR_SIPGATE_TOKEN
+# sms = YOUR_SIPGATE_SMS_EXTENSION_DEFAULT_S0
+# tel = RECIPIENT_PHONE_NUMBER
+# msg = YOUR_MESSAGE
+#
+# The token should have the sessions:sms:write scope.
+# For more information about personal access tokens visit <https://www.sipgate.io/rest-api/authentication#personalAccessToken>.
+#
+# The smsId uniquely identifies the extension from which you wish to send your message.
+# Further explanation is given in the section Web SMS Extensions <https://github.com/sipgate-io/sipgateio-sendsms-php#web-sms-extensions>.
 #
 
 use utf8;
 binmode(STDOUT, ":utf8");
 use strict;
-use Frontier::Client;
+use LWP::UserAgent;
+use HTTP::Request::Common;
+use JSON::XS;
 use App::Options (
 	no_env_vars => 1,
 	option => {
-		user => { required => 1, description => "User name for web access (not your SIP)" },
-		pass => { required => 1, description => "Password (only letters and numbers)", secure => 1 },
-		tel  => { required => 1, description => "Phone number of the SMS recipient (49157...)", type => "integer" },
-		msg  => { required => 1, description => "SMS message" },
+		id    => { required => 1, description => "Your sipgate token id (example: token-FQ1V12) " },
+		token => { required => 1, description => "Your sipgate token (example: e68ead46-a7db-46cd-8a1a-44aed1e4e372)", secure => 1 },
+		sms   => { required => 0, description => "Your sipgate SMS extension id (default: s0)", default => 's0' },
+		tel   => { required => 1, description => "Phone number of the SMS recipient (example: 49157...)", type => "integer" },
+		msg   => { required => 1, description => "SMS message" },
 	},
 );
 
-my $url = 'https://'.$App::options{user}.':'.$App::options{pass}.'@api.sipgate.net/RPC2';
-my $xmlrpc_client = Frontier::Client->new( 'url' => $url );
-my $args_identify = { ClientName => 'sipgate-sms', ClientVersion => '1.0', ClientVendor => 'Cyclenerd' };
-my $xmlrpc_identify = $xmlrpc_client->call( "samurai.ClientIdentify", $args_identify );
-if ($xmlrpc_identify->{'StatusCode'} == 200) {
-	my $args = { RemoteUri => 'sip:'.$App::options{tel}.'@sipgate.net', TOS => 'text', Content => $App::options{msg} };
-	my $xmlrpc_result = $xmlrpc_client->call( "samurai.SessionInitiate", $args );
-	if ($xmlrpc_result->{'StatusCode'} == 200) {
-		print "OK: SMS sent successfully.\n";
-	} else {
-		warn "ERROR: SMS to ".$App::options{tel}." could not be sent!\n";
-	}
+# Create JSON for content body
+my %json;
+$json{smsId}     = $App::options{sms};
+$json{recipient} = $App::options{tel};
+$json{message}   = $App::options{msg};
+# Convert Perl hash to JSON
+my $json_text = encode_json \%json;
+
+my $ua = LWP::UserAgent->new;
+my $request = POST 'https://api.sipgate.com/v2/sessions/sms';
+$request->authorization_basic($App::options{id}, $App::options{token});
+$request->header( 'Content-Type' => 'application/json', 'Content-Length' => length($json_text) );
+$request->content( $json_text );
+my $response = $ua->request($request);
+
+if ($response->is_success) {
+	print "OK: Message sent successfully.\n";
 } else {
-	warn "ERROR: Logon to sipgate was denied!\n";
+	# Error codes: https://github.com/sipgate-io/sipgateio-sendsms-php#http-errors
+	warn "ERROR: Message could not be sent! Status: '". $response->status_line ."'\n";
 }
