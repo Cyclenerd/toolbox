@@ -35,6 +35,9 @@
 # Further explanation is given in the section Web SMS Extensions <https://github.com/sipgate-io/sipgateio-sendsms-php#web-sms-extensions>.
 #
 
+BEGIN {
+	$VERSION = "1.0";
+}
 use utf8;
 binmode(STDOUT, ":utf8");
 use strict;
