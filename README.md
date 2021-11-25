@@ -6,6 +6,8 @@ Maybe they'll help you.
 Use at your own risk ☺️.
 They were often quickly hacked and poorly tested.
 
+🚨🚨🚨 No warranty or support! 🚨🚨🚨
+
 ## License
 
 GNU Public License version 3.
