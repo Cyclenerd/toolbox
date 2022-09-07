@@ -52,3 +52,35 @@ Clear cache:
 ```shell
 go clean -modcache
 ```
+
+## Cross Compile
+
+Get supported operating systems and CPU architectures:
+
+```shell
+go tool dist list
+```
+
+To cross compile we need two environment variables.
+These are `GOOS` and `GOARCH`.
+
+```shell
+GOOS=windows GOARCH=386 go build -o main.exe main.go
+```
+
+Copy & Paste:
+```text
+# Windows
+GOOS=windows GOARCH=386
+GOOS=windows GOARCH=amd64
+# Linux
+GOOS=linux   GOARCH=386
+GOOS=linux   GOARCH=amd64
+GOOS=linux   GOARCH=arm
+GOOS=linux   GOARCH=arm64
+# Mac
+GOOS=darwin  GOARCH=386
+GOOS=darwin  GOARCH=amd64
+GOOS=darwin  GOARCH=arm
+GOOS=darwin  GOARCH=arm64
+```
