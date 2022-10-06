@@ -14,6 +14,7 @@ Dir: `/usr/share/munin/plugins/`
 * [ ] [mysql_keybuffer](mysql_keybuffer)
 * [ ] [mysql_keys](mysql_keys)
 * [ ] [mysql_qcache_hits](mysql_qcache_hits)
+* [ ] [mysql_qcache_mem](mysql_qcache_mem)
 * [x] mysql_queries
 * [ ] [mysql_size_](mysql_size_)
 * [x] mysql_slowqueries
