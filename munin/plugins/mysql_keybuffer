@@ -1,0 +1,107 @@
+#!/usr/bin/perl
+# Parameters:
+#
+#   config
+#   autoconf
+#
+# Configuration variables
+#
+#   mysqlopts     - Options to pass to mysql
+#   mysqladmin    - Override location of mysqladmin
+#
+#%# family=auto
+#%# capabilities=autoconf
+
+use strict;
+
+# Define the mysqladmin paths, and commands
+my $MYSQLADMIN = $ENV{mysqladmin} || "mysqladmin";
+my $TEST_COMMAND    = "$MYSQLADMIN $ENV{mysqlopts} extended-status";
+my $MYSQL_VARIABLES = "$MYSQLADMIN $ENV{mysqlopts} extended-status variables";
+
+# Pull in any arguments
+my $arg = shift();
+
+# Check to see how the script was called
+if ($arg eq 'config') {
+    print_graph_information();
+    exit();
+} elsif ($arg eq 'autoconf') {
+    if (test_service()) { print "yes\n"; }
+    else { print "no\n"; }
+    exit;
+} else {
+
+        # Define the values that are returned to munin
+        my ($available, $current, $upper_limit, $blocks_unused, $block_size) = (0,0,0,0,0);
+
+        # Gather the values from mysqladmin
+        $blocks_unused = poll_variables($MYSQL_VARIABLES,"Key_blocks_unused");
+        $block_size = poll_variables($MYSQL_VARIABLES,"key_cache_block_size");
+        $upper_limit = poll_variables($MYSQL_VARIABLES,"key_buffer_size");
+
+        $current = $upper_limit - ($blocks_unused * $block_size);
+        $available = $upper_limit - $current;
+
+        # Return the values to Munin
+        print "current.value $current\n";
+        print "available.value $available\n";
+}
+
+sub print_graph_information {
+print <<EOM;
+graph_title MySQL key buffer used
+graph_args --base 1000 --lower-limit 0
+graph_vlabel key_buffer_size
+graph_info The usage of the key buffer
+graph_category mysql
+graph_order current available
+graph_total Total
+current.label In Use
+current.draw AREA
+current.info The size of the used key buffer
+available.label Available
+available.draw STACK
+available.info The max key buffer size
+EOM
+}
+
+sub poll_variables {
+        my $command = shift;
+        my $expression = shift;
+        my $ret = 0;
+        open(SERVICE, "$command |")
+                or die("Coult not execute '$command': $!");
+        while (<SERVICE>) {
+            my ($field, $value) = (m/(\w+).*?(\d+(?:\.\d+)?)/);
+            next unless ($field);
+            if ($field eq $expression ) {
+                $ret = "$value";
+            }
+        }
+        close(SERVICE);
+        return $ret;
+}
+
+sub test_service {
+    my $return = 1;
+    system ("$MYSQLADMIN --version >/dev/null 2>/dev/null");
+    if ($? == 0)
+    {
+                system ("$TEST_COMMAND >/dev/null 2>/dev/null");
+                if ($? == 0)
+                {
+                    print "yes\n";
+                    $return = 0;
+                }
+                else
+                {
+                        print "no (could not connect to mysql)\n";
+                }
+    }
+    else
+    {
+                print "no (mysqladmin not found)\n";
+    }
+    exit $return;
+}
