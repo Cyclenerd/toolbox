@@ -38,6 +38,7 @@ if [[ $MY_REPLICA_IO_RUNNING != 1 || $MY_REPLICA_SQL_RUNNING != 1 || $MY_SECONDS
     # Error
     echo "Error"
     mutt -s "MySQL: Replication Error - $(hostname)" -c "root@localhost" "$MY_MAIL_TO" < "/tmp/mysql_replication_status.txt"
+    exit 9
 else
     # OK
     echo "Replication looks fine."
