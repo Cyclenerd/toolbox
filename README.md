@@ -52,6 +52,27 @@ Used in Ansible Playbook:
     line: "MY_DIR={{ mysql_backup_dir }}"
 ```
 
+## MyDumper
+
+* `mydumper.sh` - Run `mydumper` and save either in folder `[NUMBER]A` or `[NUMBER]B`.
+
+Used in Ansible Playbook:
+```yml
+- name: MyDumper - Download script
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/Cyclenerd/toolbox/master/mydumper.sh
+    dest: /root/mydumper.sh
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: MyDumper - Change MY_DIR in script
+  ansible.builtin.lineinfile:
+    path: /root/mydumper.sh
+    regexp: '^MY_DIR'
+    line: "MY_DIR={{ mysql_backup_dir }}"
+```
+
 ## License
 
 GNU Public License version 3.
