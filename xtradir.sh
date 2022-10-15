@@ -1,8 +1,13 @@
 #!/bin/bash
 
-# Run xtrabackup
-# Save either in folder <NUMBER>A or <NUMBER>B
-# If successful, delete the other folder (A or B)
+# Run xtrabackup and save either in folder [NUMBER]A or [NUMBER]B.
+# If successful, delete the other folder (A or B).
+
+# Configuration file ~/.my.conf:
+#
+# [xtrabackup]
+# user=root
+# password=[PASSWORD]
 
 ME=$(basename "$0")
 MY_DIR="/mnt/usb_wd_4tb_crypt/backup"
