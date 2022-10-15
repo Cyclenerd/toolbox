@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Backup to S3 Bucket dir <NUMBER> with xtrabackup and xbcloud
+# Backup to S3 Bucket dir <NUMBER> with xtrabackup and xbcloud.
 
 # Configuration file ~/.my.conf:
 #
