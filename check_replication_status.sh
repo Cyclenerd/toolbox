@@ -10,7 +10,7 @@
 # Send alert to this email (root@localhost it always CC)
 MY_MAIL_TO='nils@localhost'
 # Maximum number of seconds behind master
-MY_MAX_SEC_BEHIND=30
+MY_MAX_SEC_BEHIND=120
 
 # Checking MySQL replication status
 # Set username and password in .my.cnf
