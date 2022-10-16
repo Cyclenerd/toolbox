@@ -30,6 +30,11 @@ Used in Ansible Playbook:
     line: "MY_HC_ID='{{ healthchecks_uuid }}'"
 ```
 
+Download & Update:
+```shell
+curl -O "https://raw.githubusercontent.com/Cyclenerd/toolbox/master/check_replication_status_hc.sh"
+```
+
 ## XtraBackup
 
 * `xtradir.sh` - Run `xtrabackup` and save either in folder `[NUMBER]A` or `[NUMBER]B`.
