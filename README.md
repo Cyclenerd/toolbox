@@ -10,8 +10,8 @@ They were often quickly hacked and poorly tested.
 
 ## MySQL
 
-* `check_replication_status.sh` - Check MySQL 8.0 replication status and send email on error
-* `check_replication_status_hc.sh` - Check MySQL 8.0 replication status and ping [healthchecks.io](https://healthchecks.io/)
+* [`check_replication_status.sh`](./check_replication_status.sh) - Check MySQL 8.0 replication status and send email on error
+* [`check_replication_status_hc.sh`](./check_replication_status_hc.sh) - Check MySQL 8.0 replication status and ping [healthchecks.io](https://healthchecks.io/)
 
 Used in Ansible Playbook:
 ```yml
@@ -37,8 +37,8 @@ curl -O "https://raw.githubusercontent.com/Cyclenerd/toolbox/master/check_replic
 
 ## XtraBackup
 
-* `xtradir.sh` - Run `xtrabackup` and save either in folder `[NUMBER]A` or `[NUMBER]B`.
-* `xtracloud.sh` - Backup to S3 Bucket with `xtrabackup` and `xbcloud`.
+* [`xtradir.sh`](./xtradir.sh) - Run `xtrabackup` and save either in folder `[NUMBER]A` or `[NUMBER]B`.
+* [`xtracloud.sh`](./xtracloud.sh) - Backup to S3 Bucket with `xtrabackup` and `xbcloud`.
 
 Used in Ansible Playbook:
 ```yml
@@ -59,7 +59,7 @@ Used in Ansible Playbook:
 
 ## MyDumper
 
-* `mydumper.sh` - Run `mydumper` and save either in folder `[NUMBER]A` or `[NUMBER]B`.
+* [`mydumper.sh`](./mydumper.sh) - Run `mydumper` and save either in folder `[NUMBER]A` or `[NUMBER]B`.
 
 Used in Ansible Playbook:
 ```yml
