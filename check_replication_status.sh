@@ -22,10 +22,6 @@ if ! mysql -e 'SHOW REPLICA STATUS \G' | grep 'Running:\|Source:\|Error:' > "/tm
 	echo "Login failed" > "/tmp/mysql_replication_status.txt"
 fi
 
-# displaying results, just in case you want to see them
-echo "Results:"
-cat "/tmp/mysql_replication_status.txt"
-
 # Check parameters
 MY_REPLICA_IO_RUNNING=$(grep -c "Replica_IO_Running: Yes" "/tmp/mysql_replication_status.txt")
 MY_REPLICA_SQL_RUNNING=$(grep -c "Replica_SQL_Running: Yes" "/tmp/mysql_replication_status.txt")
