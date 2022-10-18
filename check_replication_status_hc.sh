@@ -38,8 +38,14 @@ if [[ $MY_REPLICA_IO_RUNNING != 1 || $MY_REPLICA_SQL_RUNNING != 1 || $MY_SECONDS
 		echo "Replica_SQL_Running   : $MY_REPLICA_SQL_RUNNING"
 		echo "Seconds_Behind_Source : $MY_SECONDS_BEHIND_SOURCE"
 	} >&2
-	curl -fsS -m 10 --retry 5 -o "/dev/null" "https://hc-ping.com/$MY_HC_ID/fail"
-	exit 9
+	if [ "$1" = "no-fail" ]; then
+		# do not ping healthchecks.io
+		exit 8
+	else
+		# send fail to healthchecks.io
+		curl -fsS -m 10 --retry 5 -o "/dev/null" "https://hc-ping.com/$MY_HC_ID/fail"
+		exit 9
+	fi
 else
 	# echo OK to stdout
 	echo "OK"
