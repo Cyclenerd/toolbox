@@ -85,6 +85,14 @@ GOOS=darwin  GOARCH=arm
 GOOS=darwin  GOARCH=arm64
 ```
 
+## Shrink
+
+Use the `-s` and `-w` linker flags to strip the debugging information like this:
+
+```bash
+go build -ldflags="-s -w" -o main main.go
+```
+
 ## Format
 
 Gofmt formats Go programs.
