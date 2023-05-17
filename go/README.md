@@ -84,3 +84,33 @@ GOOS=darwin  GOARCH=amd64
 GOOS=darwin  GOARCH=arm
 GOOS=darwin  GOARCH=arm64
 ```
+
+## Format
+
+Gofmt formats Go programs.
+
+* **`-w`** : If a file's formatting is different from gofmt's, overwrite it with gofmt's version.
+* **`-s`** : Try to simplify code
+
+```bash
+gofmt -w -s *.go
+```
+
+## Lint
+
+Please use `golangci-lint`. It is a Go linters aggregator.
+
+* Install: <https://golangci-lint.run/usage/install/>
+    * Linux:
+        ```bash
+        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+        ```
+    * macOS:
+        ```bash
+        brew install golangci-lint
+        ```
+
+Run:
+```bash
+golangci-lint run
+```
