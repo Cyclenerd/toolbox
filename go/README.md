@@ -28,7 +28,22 @@ Test:
 go version
 ```
 
-## go.mod and go.sum
+## Starting a Project
+
+```shell
+go mod init NAMEHERE
+```
+
+`NAMEHERE` is the name of the package you want for your project.
+Using the full repo URL isn't a bad idea though and I still prefer it for most projects.
+
+### Getting Packages / Dependencies
+
+```shell
+go get google.golang.org/api/urlshortener/v1
+```
+
+### go.mod and go.sum
 
 Dependency management with go...
 
@@ -122,3 +137,7 @@ Run:
 ```bash
 golangci-lint run
 ```
+
+## Links
+
+* [How to start a Go project in 2023](https://boyter.org/posts/how-to-start-go-project-2023/)
