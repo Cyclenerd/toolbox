@@ -138,6 +138,22 @@ Run:
 golangci-lint run
 ```
 
+## Docker
+
+```Dockerfile
+# build stage
+FROM golang:1.20
+COPY . /go/src/bitbucket.code.company-name.com.au/scm/code
+WORKDIR /go/src/bitbucket.code.company-name.com.au/scm/code/
+RUN CGO_ENABLED=0 go build main.go
+
+# final stage
+FROM alpine:3.7
+RUN apk add --no-cache ca-certificates
+COPY --from=0 /go/src/bitbucket.code.company-name.com.au/scm/code/main .
+CMD ["./main"]
+```
+
 ## Links
 
 * [How to start a Go project in 2023](https://boyter.org/posts/how-to-start-go-project-2023/)
