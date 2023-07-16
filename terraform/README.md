@@ -4,6 +4,28 @@ Terraform plans, mostly for Google Cloud.
 
 Google provider: <https://registry.terraform.io/providers/hashicorp/google/latest/docs>
 
+## Login
+
+1. To initiate authorization, enter the following command:
+
+    ```bash
+    gcloud auth login --no-launch-browser
+    ```
+
+1. Copy the long URL that begins with `https://accounts.google.com/o/oauth2/auth...`
+1. Paste this URL into the browser with which you are currently logged in with your admin account.
+1. Copy the authorization code from the web browser.
+1. Paste the authorization code back to the prompt,
+   "Enter authorization code", and press Enter to complete the authorization.
+
+### Application Default Credential
+
+Perform the same steps again, this time for "Application Default Credentials":
+
+```bash
+gcloud auth application-default login --no-launch-browser
+```
+
 ## Deploying
 
 1. Run `terraform init`.
