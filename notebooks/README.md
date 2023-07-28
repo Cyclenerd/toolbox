@@ -4,3 +4,4 @@ As test documents I used the [HTML versions of Linux man pages](https://tldp.org
 
 * [LangChain and Google Vertex AI](LangChain_VertexAI.ipynb)
 * [LangChain, Google Vertex AI and Matching Engine](LangChain_VertexAI_Matching_Engine.ipynb)
+* [LangChain and Google GenAI App Builder (Google Enterprise Search)](GenAI_App_Builder_Question_Answering.ipynb)
