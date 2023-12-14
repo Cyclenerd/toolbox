@@ -1,5 +1,9 @@
 # Jupyter Notebooks
 
+## Gemini
+
+* [Gemini secret message](Gemini.ipynb)
+
 ## LangChain
 
 As test documents I used the [HTML versions of Linux man pages](https://tldp.org/manpages/man-html/man-html-20160109.tar.bz2).
