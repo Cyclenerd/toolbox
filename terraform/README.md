@@ -1,10 +1,25 @@
 # Terraform
 
-Terraform plans, mostly for Google Cloud.
+Provider:
 
-Google provider: <https://registry.terraform.io/providers/hashicorp/google/latest/docs>
+* AWS: <https://registry.terraform.io/providers/hashicorp/aws/latest/docs>
+* Google Cloud: <https://registry.terraform.io/providers/hashicorp/google/latest/docs>
 
 ## Login
+
+### AWS
+
+1. To initiate authorization, enter the following command:
+
+    ```bash
+    aws sso login --no-browser
+    ```
+1. Copy the long URL that begins with `https://device.sso.[REGION].amazonaws.com/?user_code=[CODE]`
+1. Paste this URL into the browser with which you are currently logged in with your admin account.
+
+More help: <https://registry.terraform.io/providers/hashicorp/aws/latest/docs?product_intent=terraform#shared-configuration-and-credentials-files>
+
+### Google Cloud
 
 1. To initiate authorization, enter the following command:
 
@@ -17,8 +32,6 @@ Google provider: <https://registry.terraform.io/providers/hashicorp/google/lates
 1. Copy the authorization code from the web browser.
 1. Paste the authorization code back to the prompt,
    "Enter authorization code", and press Enter to complete the authorization.
-
-### Application Default Credential
 
 Perform the same steps again, this time for "Application Default Credentials":
 
