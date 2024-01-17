@@ -1,0 +1,124 @@
+substitutions:
+  name: iot-nils
+  update_interval: 5s
+
+esphome:
+  name: ${name}
+  comment: ESP32 LOLIN32
+  area: Nerdcave
+
+esp32:
+  board: lolin32
+  framework:
+    # ESP-IDF framework
+    # https://esphome.io/components/esp32.html?#esp-idf-framework
+    # Supports MQTT with TLS.
+    # OTA is not supported.
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# OTA (Over The Air) update
+ota:
+  safe_mode: true
+  password: !secret ota_password
+
+# Disable multicast DNS (mDNS)
+mdns:
+  disabled: true
+
+# Sets up WiFi connections to access points 
+wifi:
+  power_save_mode: none
+  ssid: !secret wifi_ssid
+  password: !secret wifi_psk
+
+  # Configuration for fallback hotspot (captive portal)
+  ap:
+    ssid: "Fallback Hotspot ${name}"
+    password: !secret wifi_ap_psk
+
+# Enable fallback hotspot (captive portal) in case wifi connection fails
+captive_portal:
+  
+
+# MQTT
+# https://test.mosquitto.org/
+# Ports:
+# 1883 : MQTT, unencrypted, unauthenticated
+# 8883 : MQTT, encrypted, unauthenticated
+# 8884 : MQTT, encrypted, client certificate required (https://test.mosquitto.org/ssl/)
+mqtt:
+  broker: "test.mosquitto.org"
+  port: "8883"
+  topic_prefix: "iot/${name}"
+  discovery: false
+  skip_cert_cn_check: false
+  certificate_authority: |
+    -----BEGIN CERTIFICATE-----
+    MIIEAzCCAuugAwIBAgIUBY1hlCGvdj4NhBXkZ/uLUZNILAwwDQYJKoZIhvcNAQEL
+    BQAwgZAxCzAJBgNVBAYTAkdCMRcwFQYDVQQIDA5Vbml0ZWQgS2luZ2RvbTEOMAwG
+    A1UEBwwFRGVyYnkxEjAQBgNVBAoMCU1vc3F1aXR0bzELMAkGA1UECwwCQ0ExFjAU
+    BgNVBAMMDW1vc3F1aXR0by5vcmcxHzAdBgkqhkiG9w0BCQEWEHJvZ2VyQGF0Y2hv
+    by5vcmcwHhcNMjAwNjA5MTEwNjM5WhcNMzAwNjA3MTEwNjM5WjCBkDELMAkGA1UE
+    BhMCR0IxFzAVBgNVBAgMDlVuaXRlZCBLaW5nZG9tMQ4wDAYDVQQHDAVEZXJieTES
+    MBAGA1UECgwJTW9zcXVpdHRvMQswCQYDVQQLDAJDQTEWMBQGA1UEAwwNbW9zcXVp
+    dHRvLm9yZzEfMB0GCSqGSIb3DQEJARYQcm9nZXJAYXRjaG9vLm9yZzCCASIwDQYJ
+    KoZIhvcNAQEBBQADggEPADCCAQoCggEBAME0HKmIzfTOwkKLT3THHe+ObdizamPg
+    UZmD64Tf3zJdNeYGYn4CEXbyP6fy3tWc8S2boW6dzrH8SdFf9uo320GJA9B7U1FW
+    Te3xda/Lm3JFfaHjkWw7jBwcauQZjpGINHapHRlpiCZsquAthOgxW9SgDgYlGzEA
+    s06pkEFiMw+qDfLo/sxFKB6vQlFekMeCymjLCbNwPJyqyhFmPWwio/PDMruBTzPH
+    3cioBnrJWKXc3OjXdLGFJOfj7pP0j/dr2LH72eSvv3PQQFl90CZPFhrCUcRHSSxo
+    E6yjGOdnz7f6PveLIB574kQORwt8ePn0yidrTC1ictikED3nHYhMUOUCAwEAAaNT
+    MFEwHQYDVR0OBBYEFPVV6xBUFPiGKDyo5V3+Hbh4N9YSMB8GA1UdIwQYMBaAFPVV
+    6xBUFPiGKDyo5V3+Hbh4N9YSMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEL
+    BQADggEBAGa9kS21N70ThM6/Hj9D7mbVxKLBjVWe2TPsGfbl3rEDfZ+OKRZ2j6AC
+    6r7jb4TZO3dzF2p6dgbrlU71Y/4K0TdzIjRj3cQ3KSm41JvUQ0hZ/c04iGDg/xWf
+    +pp58nfPAYwuerruPNWmlStWAXf0UTqRtg4hQDWBuUFDJTuWuuBvEXudz74eh/wK
+    sMwfu1HFvjy5Z0iMDU8PUDepjVolOCue9ashlS4EB5IECdSR2TItnAIiIwimx839
+    LdUdRudafMu5T5Xma182OC0/u/xRlEm+tvKGGmfFcN0piqVl8OrSPBgIlb+1IKJE
+    m/XriWr/Cq4h/JfB7NTsezVslgkBaoU=
+    -----END CERTIFICATE-----
+
+# Sensor Components
+sensor:
+  # Uptime Sensor
+  - platform: uptime
+    name: Uptime Sensor
+    update_interval: ${update_interval}
+  - platform: wifi_signal
+    name: "WiFi Signal Sensor"
+    update_interval: ${update_interval}
+
+# Text Sensor Components
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: ESP IP Address
+    ssid:
+      name: ESP Connected SSID
+    bssid:
+      name: ESP Connected BSSID
+    mac_address:
+      name: ESP Mac Wifi Address
+    scan_results:
+      name: ESP Latest Scan Results
+    dns_address:
+      name: ESP DNS Address
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true
+
+# Binary Sensor Component
+binary_sensor:
+  - platform: status
+    name: "MQTT Status"
+
+# Web Server Component
+web_server:
+  port: 80
+  local: true
+  auth:
+    username: !secret web_server_username
+    password: !secret web_server_password

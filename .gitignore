@@ -32,3 +32,7 @@ terraform.rc
 # More
 sipgate-sms.conf
 pushover.conf
+
+# ESPhome
+/.esphome/
+/secrets.yaml
