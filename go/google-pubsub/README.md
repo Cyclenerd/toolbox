@@ -5,9 +5,6 @@
 [![Badge: macOS](https://img.shields.io/badge/macOS-000000.svg?logo=apple&logoColor=white)](#-download)
 [![Badge: Windows](https://img.shields.io/badge/Windows-008080.svg?logo=windows95&logoColor=white)](#-download)
 [![Badge: Go](https://img.shields.io/badge/Go-%2300ADD8.svg?logo=go&logoColor=white)](#readme)
-[![Badge: GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/cyclenerd/google-cloud-pubsub-publish)](https://github.com/Cyclenerd/google-cloud-pubsub-publish/blob/master/go.mod)
-[![Badge: CI](https://github.com/Cyclenerd/google-cloud-pubsub-publish/actions/workflows/ci.yml/badge.svg)](https://github.com/Cyclenerd/google-cloud-pubsub-publish/actions/workflows/ci.yml)
-[![Badge: GitHub license](https://img.shields.io/github/license/cyclenerd/google-cloud-pubsub-publish)](https://github.com/Cyclenerd/google-cloud-pubsub-publish/blob/master/LICENSE)
 
 Small and fast CLI program to publish a message to a Google Cloud Pub/Sub topic.
 
