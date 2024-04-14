@@ -225,11 +225,10 @@ if ($inputPushoverKey && $inputPushoverToken && $message && $messageHash) {
 			"url"       => "https://ikarus.webuntis.com/WebUntis/monitor?school=$inputSchool&monitorType=subst&format=SchuelerZweiTage",
 			"url_title" => "WebUntis"
 		);
-		#my $pushover = LWP::UserAgent->new()->post(
-		#	"https://api.pushover.net/1/messages.json", \%post
-		#);
-		#if ($pushover->is_success) {
-		if ($messageHash) {
+		my $pushover = LWP::UserAgent->new()->post(
+			"https://api.pushover.net/1/messages.json", \%post
+		);
+		if ($pushover->is_success) {
 			print "OK: Message sent successfully.\n";
 			open(my $fhThisMessage, '>', "/tmp/webuntis.$inputSchool.last.message.txt");
 			print $fhThisMessage "$messageHash";
