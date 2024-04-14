@@ -21,19 +21,22 @@
 # sudo apt update && \
 # sudo apt install \
 #  libapp-options-perl \
+#  libdigest-sha-perl \
 #  libwww-perl \
 #  libjson-xs-perl
 # curl -O "https://raw.githubusercontent.com/Cyclenerd/toolbox/master/webuntis.pl"
 # perl webuntis.pl --help
 
 BEGIN {
-	$VERSION = "1.0.0";
+	$VERSION = "1.1.0";
 }
 
 use utf8;
 use strict;
 use warnings;
 use Data::Dumper;
+use Digest::SHA qw(sha256_hex);
+use Encode;
 use HTML::Entities;
 use HTTP::Request::Common;
 use JSON::XS;
@@ -56,8 +59,8 @@ my $inputSchool        = $App::options{school} || "";
 my $inputClass         = $App::options{class}  || "";
 my $inputClass2        = $App::options{class2} || "";
 my $inputDateOffset    = $App::options{offset} || "0";
-my $inputPushoverKey  = $App::options{key} || "";
-my $inputPushoverToken = $App::options{token} || "";
+my $inputPushoverKey   = $App::options{key}    || "";
+my $inputPushoverToken = $App::options{token}  || "";
 
 print "Class: $inputClass\n";
 print "2nd Class: $inputClass2\n" if $inputClass2;
@@ -196,24 +199,43 @@ foreach my $text (sort @texts) {
 	$message .= "$text\n\n";
 }
 
+# Hash message to avoid duplicate notifications
+my $messageHash = sha256_hex(encode_utf8("$date $message"));
+
 # Notify via Pushover
-if ($inputPushoverKey && $inputPushoverToken && $message) {
-	print "Notify via Pushover...\n";
-	my %post = (
-		"token"     => $inputPushoverToken,
-		"user"      => $inputPushoverKey,
-		"title"     => $weekDay,
-		"message"   => $message,
-		"html"      => "1",
-		"url"       => "https://ikarus.webuntis.com/WebUntis/monitor?school=$inputSchool&monitorType=subst&format=SchuelerZweiTage",
-		"url_title" => "WebUntis"
-	);
-	my $pushover = LWP::UserAgent->new()->post(
-		"https://api.pushover.net/1/messages.json", \%post
-	);
-	if ($pushover->is_success) {
-		print "OK: Message sent successfully.\n";
+if ($inputPushoverKey && $inputPushoverToken && $message && $messageHash) {
+	my $filenameLastMessage = "/tmp/webuntis.$inputSchool.last.message.txt";
+	my $lastMessageHash = "";
+	if (-f $filenameLastMessage ) {
+		open(my $fhLastMessage, '<', $filenameLastMessage);
+		$lastMessageHash = <$fhLastMessage>;
+		close($fhLastMessage);
+	}
+	# Check last message
+	if ($lastMessageHash && $lastMessageHash eq $messageHash) {
+		print "SKIP: Already notified. No change to the last run.";
 	} else {
-		die "ERROR: Message could not be sent! Status: '". $response->status_line ."'\n";
+		print "Notify via Pushover...\n";
+		my %post = (
+			"token"     => $inputPushoverToken,
+			"user"      => $inputPushoverKey,
+			"title"     => $weekDay,
+			"message"   => $message,
+			"html"      => "1",
+			"url"       => "https://ikarus.webuntis.com/WebUntis/monitor?school=$inputSchool&monitorType=subst&format=SchuelerZweiTage",
+			"url_title" => "WebUntis"
+		);
+		#my $pushover = LWP::UserAgent->new()->post(
+		#	"https://api.pushover.net/1/messages.json", \%post
+		#);
+		#if ($pushover->is_success) {
+		if ($messageHash) {
+			print "OK: Message sent successfully.\n";
+			open(my $fhThisMessage, '>', "/tmp/webuntis.$inputSchool.last.message.txt");
+			print $fhThisMessage "$messageHash";
+			close($fhThisMessage);
+		} else {
+			die "ERROR: Message could not be sent! Status: '". $response->status_line ."'\n";
+		}
 	}
 }
