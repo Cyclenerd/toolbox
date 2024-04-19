@@ -28,7 +28,7 @@
 # perl webuntis.pl --help
 
 BEGIN {
-	$VERSION = "1.1.0";
+	$VERSION = "1.1.1";
 }
 
 use utf8;
