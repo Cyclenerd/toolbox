@@ -199,11 +199,10 @@ foreach my $text (sort @texts) {
 	$message .= "$text\n\n";
 }
 
-# Hash message to avoid duplicate notifications
-my $messageHash = sha256_hex(encode_utf8("$date $message"));
-
 # Notify via Pushover
-if ($inputPushoverKey && $inputPushoverToken && $message && $messageHash) {
+if ($inputPushoverKey && $inputPushoverToken && $message) {
+	# Hash message to avoid duplicate notifications
+	my $messageHash = sha256_hex(encode_utf8("$date $message"));
 	my $filenameLastMessage = "/tmp/webuntis.$inputSchool.last.message.txt";
 	my $lastMessageHash = "";
 	if (-f $filenameLastMessage ) {
