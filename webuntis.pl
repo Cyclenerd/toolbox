@@ -28,7 +28,7 @@
 # perl webuntis.pl --help
 
 BEGIN {
-	$VERSION = "1.1.1";
+	$VERSION = "1.1.2";
 }
 
 use utf8;
@@ -47,7 +47,7 @@ use App::Options (
 		school => { type => "string", required => 1, description => "WebUntis School ID [required]" },
 		class  => { type => "string", required => 1, description => "Filter class aka group ID [required]" },
 		class2 => { type => "string", required => 0, description => "Filter 2nd class aka group ID [optional]" },
-		offset => { type => "int",    required => 1, description => "Date offset, look into the future [default: 0]", default => 0 },
+		offset => { type => "int",    required => 1, description => "Date offset, look into the past (-1, ...) or future (1, ...) [default: 0 (today)]", default => 0 },
 		key    => { type => "string", required => 0, description => "The Pushover key (not e-mail address) of your user or group [optional]" },
 		token  => { type => "string", required => 0, description => "Your application's API token [optional]", secure => 1 },
 	},
