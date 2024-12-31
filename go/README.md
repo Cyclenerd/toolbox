@@ -50,7 +50,7 @@ Dependency management with go...
 Init:
 
 ```shell
-go mod init -
+go mod init
 ```
 
 Ensures that the go.mod file matches the source code:
