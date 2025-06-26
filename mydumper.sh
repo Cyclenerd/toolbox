@@ -1,34 +1,49 @@
 #!/bin/bash
 
-# Run mydumper and save either in folder [NUMBER]A or [NUMBER]B.
-# If successful, delete the other folder (A or B).
-
-# Configuration file ~/.my.conf:
+# ========================================================================
+# MySQL Backup Script using mydumper
+# ========================================================================
+# Description:
+#   This script creates a MySQL database backup using mydumper.
+#   It creates the backup in a temporary directory and moves it to the final
+#   location only if the backup completes successfully.
 #
-# [mydumper]
-# host=127.0.0.1
-# user=root
-# password=[PASSWORD]
-# 
-# [myloader]
-# host=127.0.0.1
-# user=root
-# password=[PASSWORD]
+# Usage:
+#   ./mydumper.sh -d /path/to/backup/dir -n backup_number
+#
+# Requirements:
+#   - mydumper must be installed
+#   - Configuration file ~/.my.conf must exist with proper credentials:
+#     [mydumper]
+#     host=127.0.0.1
+#     user=root
+#     password=PASSWORD
+#     
+#     [myloader]
+#     host=127.0.0.1
+#     user=root
+#     password=PASSWORD
+# ========================================================================
 
 ME=$(basename "$0")
-MY_DIR="/mnt/usb_wd_4tb_crypt/backup"
+DEFAULT_BACKUP_DIR="/home/backup"
 
+# Display usage information
 function usage {
-    returnCode="$1"
+    local returnCode="$1"
     echo
     echo -e "Usage: 
-    $ME -d <DIR> -n <NUMBER>] [-h]
-    -d <DIR>    Backup directory (Default: '$MY_DIR')
+    $ME -d <DIR> -n <NUMBER> [-h]
+    -d <DIR>    Backup directory (Default: '$DEFAULT_BACKUP_DIR')
     -n <NUMBER> Folder number
-    [-h]        Displays help (this message)"
+    -h          Displays help (this message)"
     echo
     exit "$returnCode"
 }
+
+# Process command line arguments
+MY_DIR="$DEFAULT_BACKUP_DIR"
+MY_NUMBER=""
 
 while getopts "d:n:h" opt; do
     case $opt in
@@ -47,46 +62,51 @@ while getopts "d:n:h" opt; do
     esac
 done
 
-command -v mydumper >/dev/null 2>&1 || { echo >&2 "!!! Error !!! mydumper it's not installed."; exit 1; }
-
-if ((MY_NUMBER >= 1)); then
-    echo "Folder number: $MY_NUMBER"
-else
-    echo "Folder number for backup missing"
-    exit 3
+# Check if mydumper is installed
+if ! command -v mydumper >/dev/null 2>&1; then
+    echo >&2 "!!! Error !!! mydumper is not installed."
+    exit 1
 fi
 
-if [ -d "$MY_DIR" ]; then
-    MY_DIR=${MY_DIR%/}
-    echo "Backup dir: $MY_DIR"
-else
-    echo "Backup dir missing or directory '$MY_DIR' does not exists."
+# Validate backup number
+if [[ -z "$MY_NUMBER" ]] || ! [[ "$MY_NUMBER" =~ ^[0-9]+$ ]] || ((MY_NUMBER < 1)); then
+    echo "Error: Valid folder number for backup is required (must be a positive integer)"
+    exit 3
+fi
+echo "Folder number: $MY_NUMBER"
+
+# Validate backup directory
+if [[ ! -d "$MY_DIR" ]]; then
+    echo "Error: Backup directory '$MY_DIR' does not exist."
     exit 2
 fi
 
-MY_BACKUP_DIR_A="$MY_DIR""/""$MY_NUMBER""A"
-MY_BACKUP_DIR_B="$MY_DIR""/""$MY_NUMBER""B"
+# Remove trailing slash if present
+MY_DIR=${MY_DIR%/}
+echo "Backup dir: $MY_DIR"
 
-if [ -d "$MY_BACKUP_DIR_A" ]; then
-    mkdir -p "$MY_BACKUP_DIR_B"
-    echo "Backup to: $MY_BACKUP_DIR_B"
-        if mydumper --outputdir "$MY_BACKUP_DIR_B"; then
-        echo "Success. Delete old backup."
-        rm -rf "$MY_BACKUP_DIR_A"
-    else
-        echo "!!! Error !!! Delete current and errored backup."
-        rm -rf "$MY_BACKUP_DIR_B"
-        exit 9
-    fi
+# Define backup directories
+MY_BACKUP_DIR_A="$MY_DIR/$MY_NUMBER"
+MY_BACKUP_DIR_B="$MY_DIR/${MY_NUMBER}new"
+
+# Create temporary backup directory
+mkdir -p "$MY_BACKUP_DIR_B"
+echo "Backup to: $MY_BACKUP_DIR_B"
+
+# Perform the backup
+if mydumper --outputdir "$MY_BACKUP_DIR_B"; then
+    echo "Backup completed successfully."
+    
+    # If previous backup exists, remove it before moving the new one
+    [[ -d "$MY_BACKUP_DIR_A" ]] && rm -rf "$MY_BACKUP_DIR_A"
+    
+    # Move the temporary backup to the final location
+    mv "$MY_BACKUP_DIR_B" "$MY_BACKUP_DIR_A"
+    echo "Backup moved to final location: $MY_BACKUP_DIR_A"
 else
-    mkdir -p "$MY_BACKUP_DIR_A"
-    echo "Backup to: $MY_BACKUP_DIR_A"
-    if mydumper --outputdir "$MY_BACKUP_DIR_A"; then
-        echo "Success. Delete old backup."
-        rm -rf "$MY_BACKUP_DIR_B"
-    else
-        echo "!!! Error !!! Delete current and errored backup."
-        rm -rf "$MY_BACKUP_DIR_A"
-        exit 9
-    fi
+    echo "!!! Error !!! Backup failed. Cleaning up temporary files."
+    rm -rf "$MY_BACKUP_DIR_B"
+    exit 9
 fi
+
+echo "Backup process complete."
